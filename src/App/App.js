@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import logo from './logo.svg';
 import './App.css';
 
@@ -7,9 +8,11 @@ function App() {
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+        <Blue>
+          <p>
+            Edit <code>src/App.js</code> and save to reload.
+          </p>
+        </Blue>
         <a
           className="App-link"
           href="https://reactjs.org"
@@ -24,3 +27,7 @@ function App() {
 }
 
 export default App;
+
+const Blue = styled.div`
+  background: blue;
+`;
