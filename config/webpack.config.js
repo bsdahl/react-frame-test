@@ -24,7 +24,7 @@ const getClientEnvironment = require('./env');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const ForkTsCheckerWebpackPlugin = require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 const typescriptFormatter = require('react-dev-utils/typescriptFormatter');
-
+var WebpackBeforeBuildPlugin = require('before-build-webpack');
 const postcssNormalize = require('postcss-normalize');
 
 const appPackageJson = require(paths.appPackageJson);
@@ -48,6 +48,13 @@ const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
 
+// We need to gather the files manifest from our app, and inject it into our bootloader
+const manifest = {};
+var manifestStringifier = function () {};
+manifestStringifier.toString = function () {
+  return JSON.stringify(manifest);
+};
+
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function (webpackEnv) {
@@ -67,8 +74,8 @@ module.exports = function (webpackEnv) {
   // common function to get style loaders
   const getStyleLoaders = (cssOptions, preProcessor) => {
     const loaders = [
-      isEnvDevelopment && require.resolve('style-loader'),
-      isEnvProduction && {
+      // isEnvDevelopment && require.resolve('style-loader'),
+      {
         loader: MiniCssExtractPlugin.loader,
         // css is located in `static/css`, use '../../' to locate index.html folder
         // in production `paths.publicUrlOrPath` can be a relative path
@@ -552,13 +559,13 @@ module.exports = function (webpackEnv) {
         // makes the discovery automatic so you don't have to restart.
         // See https://github.com/facebook/create-react-app/issues/186
         isEnvDevelopment && new WatchMissingNodeModulesPlugin(paths.appNodeModules),
-        isEnvProduction &&
-          new MiniCssExtractPlugin({
-            // Options similar to the same options in webpackOptions.output
-            // both options are optional
-            filename: 'static/css/[name].[contenthash:8].css',
-            chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
-          }),
+
+        new MiniCssExtractPlugin({
+          // Options similar to the same options in webpackOptions.output
+          // both options are optional
+          filename: 'static/css/[name].[contenthash:8].css',
+          chunkFilename: 'static/css/[name].[contenthash:8].chunk.css',
+        }),
         // Generate an asset manifest file with the following content:
         // - "files" key: Mapping of all asset filenames to their corresponding
         //   output file so that tools can pick it up without having to parse
@@ -576,6 +583,8 @@ module.exports = function (webpackEnv) {
             const entrypointFiles = entrypoints.main.filter(
               (fileName) => !fileName.endsWith('.map')
             );
+
+            Object.assign(manifest, manifestFiles);
 
             return {
               files: manifestFiles,
@@ -827,7 +836,19 @@ module.exports = function (webpackEnv) {
         ],
       },
       plugins: [
+        new WebpackBeforeBuildPlugin(function (stats, callback) {
+          const poll = () => {
+            if (Object.keys(manifest).length > 0) {
+              callback(); // don't call it if you do want to stop compilation
+            } else {
+              setTimeout(poll, 10);
+            }
+          };
+
+          poll();
+        }),
         new webpack.DefinePlugin(env.stringified),
+        new webpack.DefinePlugin({ MANIFEST: manifestStringifier }),
         // isEnvDevelopment &&
         //   new HtmlWebpackPlugin({
         //     inject: false,

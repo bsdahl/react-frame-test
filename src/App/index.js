@@ -1,9 +1,10 @@
+/* global MANIFEST */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled, { StyleSheetManager } from 'styled-components';
-import Frame, { FrameContextConsumer } from 'react-frame-component';
-import './index.css';
 import App from './App';
+import { StyledFrame } from './components/StyledFrame';
+import './index.css';
 // import * as serviceWorker from './serviceWorker';
 
 // We expect to be injected into an iframe. Need some safety checks here I suppose
@@ -14,13 +15,13 @@ const container = document.createElement('div');
 container.id = 'react-container';
 document.body.appendChild(container);
 
-const PositionedFrame = styled(Frame)`
+const PositionedFrame = styled(StyledFrame)`
   position: fixed;
   bottom: 0;
   right: 0;
 `;
 
-const PositionedFrame2 = styled(Frame)`
+const PositionedFrame2 = styled(StyledFrame)`
   position: fixed;
   bottom: 200px;
   right: 0;
@@ -30,23 +31,11 @@ ReactDOM.render(
   <React.StrictMode>
     <StyleSheetManager target={container}>
       <>
-        <PositionedFrame>
-          <FrameContextConsumer>
-            {(frameContext) => (
-              <StyleSheetManager target={frameContext.document.head}>
-                <App />
-              </StyleSheetManager>
-            )}
-          </FrameContextConsumer>
+        <PositionedFrame head={<link rel="stylesheet" href={MANIFEST['main.css']} />}>
+          <App />
         </PositionedFrame>
-        <PositionedFrame2>
-          <FrameContextConsumer>
-            {(frameContext) => (
-              <StyleSheetManager target={frameContext.document.head}>
-                <App />
-              </StyleSheetManager>
-            )}
-          </FrameContextConsumer>
+        <PositionedFrame2 head={<link rel="stylesheet" href={MANIFEST['main.css']} />}>
+          <App />
         </PositionedFrame2>
       </>
     </StyleSheetManager>

@@ -1,3 +1,4 @@
+/* global MANIFEST*/
 export class Bootloader {
   constructor() {
     this.state = {};
@@ -6,6 +7,7 @@ export class Bootloader {
   boot() {
     this.createReactFrame();
     console.log('Booted!');
+    console.log(MANIFEST);
   }
 
   createReactFrame() {
@@ -26,7 +28,9 @@ export class Bootloader {
     //     <body></body>
     //   </html>`;
 
+    const inlineElement = createInlineScriptElement(`MANIFEST=${JSON.stringify(MANIFEST)}`);
     const scriptElement = createScriptElement('/app.latest.js');
+    frame.contentDocument.head.appendChild(inlineElement);
     frame.contentDocument.head.appendChild(scriptElement);
   }
 }
@@ -36,5 +40,18 @@ function createScriptElement(src) {
   el.type = 'text/javascript';
   el.charset = 'utf-8';
   el.src = src;
+  return el;
+}
+
+function createInlineScriptElement(content) {
+  const el = document.createElement('script');
+  el.text = content;
+  return el;
+}
+
+function createLinkElement(href) {
+  const el = document.createElement('link');
+  el.rel = 'stylesheet';
+  el.href = href;
   return el;
 }
