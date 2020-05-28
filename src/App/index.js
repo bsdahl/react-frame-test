@@ -1,4 +1,4 @@
-/* global MANIFEST */
+/* global WEBPACK_MANIFEST */
 import React from 'react';
 import ReactDOM from 'react-dom';
 import styled, { StyleSheetManager } from 'styled-components';
@@ -31,10 +31,10 @@ ReactDOM.render(
   <React.StrictMode>
     <StyleSheetManager target={container}>
       <>
-        <PositionedFrame head={<link rel="stylesheet" href={MANIFEST['main.css']} />}>
+        <PositionedFrame head={<link rel="stylesheet" href={WEBPACK_MANIFEST['main.css']} />}>
           <App />
         </PositionedFrame>
-        <PositionedFrame2 head={<link rel="stylesheet" href={MANIFEST['main.css']} />}>
+        <PositionedFrame2 head={<link rel="stylesheet" href={WEBPACK_MANIFEST['main.css']} />}>
           <App />
         </PositionedFrame2>
       </>

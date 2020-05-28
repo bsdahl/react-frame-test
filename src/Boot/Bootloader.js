@@ -1,13 +1,13 @@
-/* global MANIFEST*/
 export class Bootloader {
   constructor() {
+    this.manifest = process.env['WEBPACK_MANIFEST'];
     this.state = {};
   }
 
   boot() {
     this.createReactFrame();
     console.log('Booted!');
-    console.log(MANIFEST);
+    console.log(this.manifest);
   }
 
   createReactFrame() {
@@ -28,8 +28,10 @@ export class Bootloader {
     //     <body></body>
     //   </html>`;
 
-    const inlineElement = createInlineScriptElement(`MANIFEST=${JSON.stringify(MANIFEST)}`);
-    const scriptElement = createScriptElement('/app.latest.js');
+    const inlineElement = createInlineScriptElement(
+      `WEBPACK_MANIFEST=${JSON.stringify(this.manifest)}`
+    );
+    const scriptElement = createScriptElement(this.manifest['main.js']);
     frame.contentDocument.head.appendChild(inlineElement);
     frame.contentDocument.head.appendChild(scriptElement);
   }

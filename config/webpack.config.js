@@ -50,8 +50,8 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 
 // We need to gather the files manifest from our app, and inject it into our bootloader
 const manifest = {};
-var manifestStringifier = function () {};
-manifestStringifier.toString = function () {
+var stringifyManifest = function () {};
+stringifyManifest.toString = function () {
   return JSON.stringify(manifest);
 };
 
@@ -847,8 +847,12 @@ module.exports = function (webpackEnv) {
 
           poll();
         }),
-        new webpack.DefinePlugin(env.stringified),
-        new webpack.DefinePlugin({ MANIFEST: manifestStringifier }),
+        new webpack.DefinePlugin({
+          'process.env': {
+            ...env.stringified['process.env'],
+            WEBPACK_MANIFEST: stringifyManifest,
+          },
+        }),
         // isEnvDevelopment &&
         //   new HtmlWebpackPlugin({
         //     inject: false,
